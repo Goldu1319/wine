@@ -67,13 +67,23 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 @st.cache_data
-def load_data():
-    df = pd.read_csv("winequality-red.csv", sep=';')
+def load_data(wine_type):
+    if wine_type == "Red Wine":
+        df = pd.read_csv("winequality-red.csv", sep=';')
+    else:
+        df = pd.read_csv("winequality-white.csv", sep=';')
     df.columns = df.columns.str.strip()
     return df
 
+# Wine type selection
+wine_type = st.sidebar.selectbox(
+    "Select Wine Type",
+    ["Red Wine", "White Wine"],
+    index=0
+)
+
 # Load and prepare data
-df = load_data()
+df = load_data(wine_type)
 
 # Combine classes
 df['quality_label'] = df['quality'].apply(
@@ -92,6 +102,32 @@ y = df['quality_encoded']
 # Scale features
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
+# App title
+st.title("Wine Quality Prediction App")
+st.markdown("This app predicts the **quality of red wine** based on its chemical attributes using the **KNN algorithm**.")
+
+# Load the dataset with correct separator
+df = pd.read_csv("winequality-red.csv", sep=';')
+
+# Strip any extra spaces from the column names
+df.columns = df.columns.str.strip()
+
+# Dataset info
+with st.expander("Preview Dataset"):
+    st.write("Dataset Columns:", list(df.columns))
+    st.dataframe(df.head())
+
+# Check for 'quality' column
+if 'quality' not in df.columns:
+    st.error("Error: 'quality' column not found in the dataset. Please check the column name.")
+else:
+    # Split features and target
+    X = df.drop("quality", axis=1)
+    y = df["quality"]
+
+    # Standardize the features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
 
 # Split data
 X_train, X_test, y_train, y_test = train_test_split(
@@ -210,6 +246,10 @@ if predict_button:
                     <p style='font-size: 24px; color: {text_color}; font-weight: bold;'>{prob * 100:.1f}%</p>
                 </div>
             """, unsafe_allow_html=True)
+
+    # Show the entered inputs
+    with st.expander("Your Input Summary"):
+        st.dataframe(input_df)
 
 # Footer with information
 st.markdown("""
