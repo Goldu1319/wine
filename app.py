@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score
+import pickle
 
 # Page configuration
 st.set_page_config(
@@ -66,6 +67,10 @@ st.markdown("""
     <p class='subtitle'>KNN-based Machine Learning Model for Wine Quality Assessment</p>
     """, unsafe_allow_html=True)
 
+# Load the model
+with open('knn_model.pkl', 'rb') as file:
+    model = pickle.load(file)
+
 @st.cache_data
 def load_data(wine_type):
     if wine_type == "Red Wine":
@@ -85,18 +90,32 @@ wine_type = st.sidebar.selectbox(
 # Load and prepare data
 df = load_data(wine_type)
 
+# Define quality labels
+def get_quality_label(quality):
+    if quality <= 4:
+        return 'Low'
+    elif quality <= 6:
+        return 'Medium'
+    else:
+        return 'High'
+
+# Create label mappings
+label_map = {'Low': 0, 'Medium': 1, 'High': 2}
+label_reverse = {0: 'Low', 1: 'Medium', 2: 'High'}
+
+# Features for prediction
+feature_names = ['fixed acidity', 'volatile acidity', 'citric acid', 'residual sugar',
+                'chlorides', 'free sulfur dioxide', 'total sulfur dioxide', 'density',
+                'pH', 'sulphates', 'alcohol']
+
 # Combine classes
-df['quality_label'] = df['quality'].apply(
-    lambda q: 'Low' if q <= 4 else ('Medium' if q <= 6 else 'High')
-)
+df['quality_label'] = df['quality'].apply(get_quality_label)
 
 # Encode target
-label_map = {'Low': 0, 'Medium': 1, 'High': 2}
 df['quality_encoded'] = df['quality_label'].map(label_map)
 
 # Features and target
 X = df.drop(['quality', 'quality_label', 'quality_encoded'], axis=1)
-feature_names = list(X.columns)
 y = df['quality_encoded']
 
 # Scale features
@@ -208,7 +227,6 @@ if predict_button:
     prediction = model.predict(input_scaled)[0]
     proba = model.predict_proba(input_scaled)[0]
 
-    label_reverse = {v: k for k, v in label_map.items()}
     predicted_label = label_reverse[prediction]
 
     # Display prediction with styled container
