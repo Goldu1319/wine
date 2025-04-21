@@ -67,13 +67,38 @@ st.markdown("""
     <p class='subtitle'>KNN-based Machine Learning Model for Wine Quality Assessment</p>
     """, unsafe_allow_html=True)
 
+# Train and save the model if it doesn't exist
+try:
+    with open('knn_model.pkl', 'rb') as file:
+        model = pickle.load(file)
+except (EOFError, FileNotFoundError):
+    # Load and prepare data
+    df = pd.read_csv("winequality-red.csv", sep=';')
+    df.columns = df.columns.str.strip()
+    
+    # Prepare features and target
+    X = df.drop("quality", axis=1)
+    y = df["quality"]
+    
+    # Scale features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    # Train model
+    model = KNeighborsClassifier(n_neighbors=5, weights='distance')
+    model.fit(X_scaled, y)
+    
+    # Save the model
+    with open('knn_model.pkl', 'wb') as file:
+        pickle.dump(model, file)
+
 # Load the model
 with open('knn_model.pkl', 'rb') as file:
     model = pickle.load(file)
 
 @st.cache_data
 def load_data(wine_type):
-    if wine_type == "Red Wine":
+    if (wine_type == "Red Wine"):
         df = pd.read_csv("winequality-red.csv", sep=';')
     else:
         df = pd.read_csv("winequality-white.csv", sep=';')
