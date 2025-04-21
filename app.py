@@ -249,10 +249,11 @@ if predict_button:
     # Prepare input data
     input_df = pd.DataFrame([user_input])[feature_names]
     input_scaled = scaler.transform(input_df)
-    prediction = model.predict(input_scaled)[0]
+    prediction = int(model.predict(input_scaled)[0])  # Convert numpy.int64 to Python int
     proba = model.predict_proba(input_scaled)[0]
 
-    predicted_label = label_reverse[prediction]
+    # Convert numeric prediction to quality label
+    predicted_label = get_quality_label(prediction)
 
     # Display prediction with styled container
     st.markdown("<h2 class='section-header'>Prediction Result</h2>", unsafe_allow_html=True)
