@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score
 st.set_page_config(page_title="Wine Quality Predictor", layout="centered")
 
 # App title
-st.title("🍷 Wine Quality Prediction App")
+st.title("Wine Quality Prediction App")
 st.markdown("This app predicts the **quality of red wine** based on its chemical attributes using the **KNN algorithm**.")
 
 # Load the dataset with correct separator
@@ -19,13 +19,13 @@ df = pd.read_csv("winequality-red.csv", sep=';')
 df.columns = df.columns.str.strip()
 
 # Dataset info
-with st.expander("📂 Preview Dataset"):
+with st.expander("Preview Dataset"):
     st.write("Dataset Columns:", list(df.columns))
     st.dataframe(df.head())
 
 # Check for 'quality' column
 if 'quality' not in df.columns:
-    st.error("❌ Error: 'quality' column not found in the dataset. Please check the column name.")
+    st.error("Error: 'quality' column not found in the dataset. Please check the column name.")
 else:
     # Split features and target
     X = df.drop("quality", axis=1)
@@ -43,7 +43,7 @@ else:
     # Evaluate the model
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
-    st.success(f"✅ Model trained with **{accuracy * 100:.2f}%** accuracy.")
+    st.success(f"Model trained with **{accuracy * 100:.2f}%** accuracy.")
 
     # Sidebar for user input
     st.sidebar.header("Enter Wine Attributes:")
@@ -80,7 +80,7 @@ else:
     # Predict quality
     prediction = model.predict(input_scaled)[0]
 
-    st.subheader("🔍 Prediction Result")
+    st.subheader("Prediction Result")
     if prediction <= 4:
         st.error(f"Predicted Wine Quality: {prediction} (Poor Quality)")
     elif 5 <= prediction <= 6:
@@ -89,5 +89,5 @@ else:
         st.success(f"Predicted Wine Quality: {prediction} (Good Quality)")
 
     # Show the entered inputs
-    with st.expander("📊 Your Input Summary"):
+    with st.expander("Your Input Summary"):
         st.dataframe(input_df)
